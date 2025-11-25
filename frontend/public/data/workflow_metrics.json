@@ -1,0 +1,114 @@
+{
+  "generated_at": "2025-11-15T17:45:12.460761",
+  "company_name": "GMR Airports Ltd",
+  "symbol": "GMRAIRPORT.NS",
+  "agents": [
+    {
+      "id": "stock_analyst",
+      "name": "Stock Analyst",
+      "description": "Analyzing 30-day stock performance, volatility, and liquidity metrics",
+      "status": "completed",
+      "tasks": [
+        "GMR Stock Data Collection",
+        "Price & Volume Analysis",
+        "Technical Indicators",
+        "Support/Resistance Levels",
+        "Volatility & Trading Patterns"
+      ],
+      "metrics": [
+        {
+          "label": "30-Day Return",
+          "value": "7.61%",
+          "color": "from-green-600/20 to-emerald-600/20"
+        },
+        {
+          "label": "Volatility",
+          "value": "13.98%",
+          "color": "from-blue-600/20 to-cyan-600/20"
+        },
+        {
+          "label": "Avg Volume",
+          "value": "11.96M",
+          "color": "from-purple-600/20 to-pink-600/20"
+        },
+        {
+          "label": "Traded Value",
+          "value": "₹112.43 Cr",
+          "color": "from-orange-600/20 to-red-600/20"
+        }
+      ],
+      "output": "GMR Airports Ltd (GMRAIRPORT.NS) has demonstrated a solid 30-day stock return of 7.61% with an annualized volatility of 13.98%, indicating stable performance. The average daily trading volume is 11.96 million shares, reflecting strong market interest and a total traded value of ₹1,12.43 crore over the past 30 days."
+    },
+    {
+      "id": "investment_analyst",
+      "name": "Company Analyst",
+      "description": "Evaluating financial performance, debt ratios, and growth projections",
+      "status": "completed",
+      "tasks": [
+        "Financial Performance Analysis",
+        "Balance Sheet & Debt Analysis",
+        "Operational Performance",
+        "Project Pipeline & Funding",
+        "Valuation & Risk Assessment"
+      ],
+      "metrics": [
+        {
+          "label": "Revenue Growth",
+          "value": "11.64%",
+          "color": "from-green-600/20 to-emerald-600/20"
+        },
+        {
+          "label": "EBITDA Margin",
+          "value": "7.09%",
+          "color": "from-blue-600/20 to-cyan-600/20"
+        },
+        {
+          "label": "Debt/Equity",
+          "value": "0.34x",
+          "color": "from-orange-600/20 to-red-600/20"
+        },
+        {
+          "label": "EV/EBITDA",
+          "value": "177.97x",
+          "color": "from-red-600/20 to-pink-600/20"
+        }
+      ],
+      "output": "For FY24, GMR Airports Limited is projected to generate total revenue of ₹12.63 billion, with a significant contribution from non-aeronautical sectors. Despite expected revenue growth to ₹14.10 billion in FY25, the company faces challenges with negative net profits due to high interest expenses, although passenger traffic is anticipated to increase by nearly 20%."
+    },
+    {
+      "id": "compliance_evaluator",
+      "name": "Compliance Evaluator",
+      "description": "Verifying trading classification and regulatory compliance",
+      "status": "completed",
+      "tasks": [
+        "Policy Rules Extraction",
+        "Trading Classification",
+        "Exceptional Events Check",
+        "Final Recommendation"
+      ],
+      "metrics": [
+        {
+          "label": "Classification",
+          "value": "Traded",
+          "color": "from-green-600/20 to-emerald-600/20"
+        },
+        {
+          "label": "Traded Value",
+          "value": "₹6,688.08 Cr",
+          "color": "from-blue-600/20 to-cyan-600/20"
+        },
+        {
+          "label": "Volume",
+          "value": "56M",
+          "color": "from-purple-600/20 to-pink-600/20"
+        },
+        {
+          "label": "Verdict",
+          "value": "Review",
+          "color": "from-yellow-600/20 to-orange-600/20"
+        }
+      ],
+      "output": "GMR Airports Ltd qualifies as a traded security based on its trading activity, meeting the necessary volume and value thresholds. However, potential credit stress is indicated by an interest coverage ratio below 1.0, alongside possible issues related to the valuation of covenants due to missing debt valuer information."
+    }
+  ]
+}
