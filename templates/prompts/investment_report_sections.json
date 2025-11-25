@@ -1,0 +1,37 @@
+{
+  "executive_summary": {
+    "name": "Executive Summary",
+    "dashboard": null,
+    "prompt": "Return a single 4–5 line analytical paragraph (≈60–90 words) that uses ONLY values from investmentproposal_processed.json, company_analysis_output.json, and gmr_stock_analysis.json. The paragraph must include:\n- One-line business intro (what GMR does)\n- FY24 revenue and FY25P revenue (keys)\n- EBITDA FY24 & FY25P and margins (keys)\n- Stock short metrics: 30-day return %, 30-day volatility %, avg daily volume, and price provenance (exchange + timestamp) — use only provided values\n- A one-line 'Keys used:' footer listing exact JSON keys (no values)\n\nIf a value is missing, write 'data unavailable' for that item. Return ONLY the paragraph + footer line."
+  },
+  "financial_performance": {
+    "name": "Financial Performance (condensed)",
+    "dashboard": "financial_overview",
+    "prompt": "After generating dashboard_financial_overview.png, return a 4–5 line paragraph (≈60–90 words) that:\n- Summarizes Revenue FY24 & FY25P, EBITDA FY24 & FY25P, and Interest Coverage (include exact keys)\n- Provides one sentence on Operating CF vs Capex sufficiency (use Operating CF & Capex keys; agent may compute but must show formula)\n- Conclude with one short sentence on immediate financial concern (one phrase)\n- Footer: 'Keys used:' listing extraction keys (no values)\n\nDo NOT repeat chart instructions. Return only paragraph + footer."
+  },
+  "balance_debt": {
+    "name": "Balance Sheet & Debt (condensed)",
+    "dashboard": "debt_liquidity",
+    "prompt": "After creating dashboard_debt_liquidity.png, return a 4–5 line paragraph that:\n- States Total Assets, Total Debt, Net Worth (FY24 & FY25P keys) and shows Debt-to-Equity and Debt-to-EBITDA formulas (agent may compute derived ratios and must show formula and keys)\n- One short sentence on short-term debt concentration and liquidity gauge (keys)\n- Footer: 'Keys used:' listing extraction keys\n\nReturn only the paragraph + footer."
+  },
+  "operational_performance": {
+    "name": "Operational Performance (condensed)",
+    "dashboard": "operations_capacity",
+    "prompt": "After producing dashboard_operations_capacity.png, return a 4–5 line paragraph that:\n- Notes Passenger traffic FY24 and FY25P with growth % (agent may compute growth and must show formula and keys)\n- Summarizes airport capacity utilization for Delhi and Hyderabad (keys) and call out any headroom risk\n- One short line on non-aero revenue direction (use % split key if present; otherwise 'data unavailable')\n- Footer: 'Keys used:' listing extraction keys\n\nReturn only the paragraph + footer."
+  },
+  "projects_funding": {
+    "name": "Projects & Funding (condensed)",
+    "dashboard": "projects_funding",
+    "prompt": "After generating dashboard_projects_funding.png, return a 4–5 line paragraph that:\n- States Total Capex pipeline and top project amounts (keys)\n- Provides Funding Gap KPI value or 'data unavailable' if missing (show formula & keys)\n- One short line on execution risk (mention largest project and status)\n- Footer: 'Keys used:' listing extraction keys\n\nReturn only the paragraph + footer."
+  },
+  "valuation_risk": {
+    "name": "Valuation & Risk (condensed)",
+    "dashboard": "valuation_risk",
+    "prompt": "After creating dashboard_valuation_risk.png, return a tight 4-line insight:\n- State EV/EBITDA, P/B, Market Cap (keys) and a one-line valuation concern\n- List top-2 risk drivers (financial, execution) with keys\n- Footer: 'Keys used:' listing extraction keys\n\nReturn only the 4-line insight + footer."
+  },
+  "governance_esg": {
+    "name": "Governance & ESG (condensed)",
+    "dashboard": null,
+    "prompt": "Return a 4–5 line paragraph summarizing:\n- Auditor opinion & board composition highlight (keys)\n- Regulatory compliance status (SEBI, AERA, DGCA) and any recent penalties (keys or 'no penalties' if none)\n- Litigation / contingent liabilities % of net worth (keys or 'data unavailable')\n- Footer: 'Keys used:' listing extraction keys\n\nReturn only paragraph + footer."
+  }
+}

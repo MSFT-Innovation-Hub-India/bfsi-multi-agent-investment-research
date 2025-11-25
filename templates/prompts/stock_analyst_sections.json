@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "report_name": "final_stock_report",
+    "canvas_size": {
+      "width": 2400,
+      "height": 3200
+    },
+    "final_png": "final_stock_report.png",
+    "timestamp_key": "generated_at"
+  },
+  "executive_summary": {
+    "name": "Executive Summary",
+    "dashboard": "null",
+    "size": {
+      "width": 2400,
+      "height": 200
+    },
+    "prompt": "Generate an analytical paragraph (NO IMAGE REQUIRED) with the following:\n\nTHE PARAGRAPH MUST:\n- Embed ALL compliance-critical fields naturally inside one smooth narrative sentence.\n- Use ONLY values extracted from gmr_stock_analysis.json.\n- Never perform calculations or add new numbers.\n- Do NOT use key:value format, JSON format, or bullet lists.\n\nMANDATORY FIELDS TO INCLUDE IN THE SENTENCE (EXTRACT EXACT VALUES FROM JSON):\n- symbol (extract from root level)\n- returns_summary.30_day_stock_return_percent\n- risk_metrics.volatility_30d_annualized_percent\n- liquidity.avg_daily_volume\n- liquidity.total_traded_value_cr_30d (EXTRACT DIRECTLY - do NOT compute)\n- liquidity.total_traded_volume_30d (EXTRACT DIRECTLY - do NOT compute)\n- **price provenance** → extract from:\n     • data_source field (exchange name)\n     • timestamp field (exact timestamp from JSON)\n\nHOW PRICE PROVENANCE MUST APPEAR:\n- Mention the exchange (e.g., \"NSE prices\")\n- Mention the timestamp naturally (e.g., \"as of 14 Nov 2025 11:45\")\n- Do NOT use words like \"provenance\", \"policy\", \"validation\", etc.\n\nSTYLE RULES:\n- Produce a smooth, professional, single-sentence summary.\n- Format numbers naturally: \"₹2,538.59cr traded value\", \"270.49M shares volume\".\n- Convert volume to millions: divide total_traded_volume_30d by 1,000,000\n- If a field is missing, write \"data unavailable\" in its place.\n- Do NOT compute or calculate - ONLY extract values from the JSON file\n- Do NOT mention compliance, thresholds, valuation rules, or risk categories.\n- Do NOT list values in the footer—only the JSON keys used.\n\nFOOTER FORMAT:\nList only the JSON keys used (not the values):\n\"Keys used: symbol, returns_summary.30_day_stock_return_percent, risk_metrics.volatility_30d_annualized_percent, liquidity.avg_daily_volume, liquidity.total_traded_value_cr_30d, liquidity.total_traded_volume_30d, timestamp\"\n\nCRITICAL REMINDER: Extract exact values from gmr_stock_analysis.json - NO computation allowed.\n\nOutput only the paragraph text with the footer - NO IMAGE generation for this section."
+  },
+  "panel_p1_price_trend": {
+    "name": "P1 - Price Trend & Momentum",
+    "dashboard": "p1_price_trend",
+    "size": {
+      "width": 1100,
+      "height": 800
+    },
+    "dashboard_spec": [
+      "Subplot 1: Candlestick (ohlcv_data_30d: open/high/low/close) - full subplot",
+      "Subplot 2: Volume bars (ohlcv_data_30d.volume) - under candlestick",
+      "Subplot 3: 5-day & 30-day SMA on close (compute from ohlcv_data_30d.close)",
+      "Subplot 4: Annotated box: trend_5d_return_percent, trend_30d_return_percent"
+    ],
+    "text_takeaway": "One-line (<=100 chars): '30d {returns_summary.30_day_stock_return_percent:+.2f}%; 5d {trend_indicators.trend_5d_return_percent:+.2f}% (momentum)'.",
+    "provenance_keys": [
+      "ohlcv_data_30d",
+      "returns_summary.30_day_stock_return_percent",
+      "trend_indicators.trend_5d_return_percent",
+      "trend_indicators.trend_30d_return_percent"
+    ],
+    "prompt": "Extract from gmr_stock_analysis.json and create 1100x800 px panel:\n\n1. Top subplot (70% height): OHLC Candlestick chart\n   - Extract ohlcv_data_30d (date, open, high, low, close)\n   - Use matplotlib.finance or plotly candlestick\n   \n2. Below candlestick (20% height): Volume bars\n   - Extract ohlcv_data_30d.volume\n   - Gray bars with increased volume highlighted\n   \n3. Overlay SMA lines on candlestick:\n   - Compute 5-day SMA from close prices\n   - Compute 30-day SMA from close prices\n   \n4. Text box (bottom 10%):\n   - Show: 30d return %, 5d return %\n   - Extract from returns_summary and trend_indicators\n\nCRITICAL: Create ALL components (candlestick + volume + SMAs + text) in a SINGLE 1100x800 image.\nUse matplotlib subplots with proper layout.\nSave as ONE file: p1_price_trend.png (exactly 1100x800).\nDo NOT create separate images - combine all into single PNG."
+  },
+  "panel_p2_relative_perf": {
+    "name": "P2 - Relative Performance vs Benchmarks",
+    "dashboard": "p2_relative_perf",
+    "size": {
+      "width": 1100,
+      "height": 800
+    },
+    "dashboard_spec": [
+      "Subplot 1: Bar chart of 30d returns for stock, NIFTY, SENSEX (returns_summary.*)",
+      "Subplot 2: Alpha vs NIFTY annotation with beta visualization (risk_metrics.alpha_nifty_percent, beta_nifty)",
+      "Subplot 3: Table with beta_nifty, correlation_nifty (risk_metrics.*)"
+    ],
+    "text_takeaway": "One-line: 'Outperformance vs NIFTY: {returns_summary.30_day_stock_return_percent - returns_summary.30_day_nifty_return_percent:+.2f}pp; Beta {risk_metrics.beta_nifty:.2f}'.",
+    "provenance_keys": [
+      "returns_summary.30_day_stock_return_percent",
+      "returns_summary.30_day_nifty_return_percent",
+      "returns_summary.30_day_sensex_return_percent",
+      "risk_metrics.beta_nifty",
+      "risk_metrics.correlation_nifty",
+      "risk_metrics.alpha_nifty_percent"
+    ],
+    "prompt": "Extract from gmr_stock_analysis.json and create 1100x800 px panel:\n\n1. Top left (50%): Bar chart comparing 30d returns\n   - Stock: returns_summary.30_day_stock_return_percent\n   - NIFTY: returns_summary.30_day_nifty_return_percent\n   - SENSEX: returns_summary.30_day_sensex_return_percent\n   - Color green if positive, red if negative\n   \n2. Top right (50%): Alpha visualization\n   - Show Alpha vs NIFTY: risk_metrics.alpha_nifty_percent\n   - Display as gauge or bar chart\n   - Format: +X.XX%\n   \n3. Bottom (full width): Table\n   - Beta vs NIFTY: risk_metrics.beta_nifty\n   - Correlation: risk_metrics.correlation_nifty\n   - Show in clean table format\n\nCRITICAL: Create ALL 3 subplots (bar chart + alpha visualization + table) in a SINGLE 1100x800 image.\nUse matplotlib subplots with proper layout (2 graphs on top, 1 table at bottom).\nSave as ONE file: p2_relative_perf.png (exactly 1100x800).\nDo NOT create separate images for each subplot - combine all into single PNG."
+  },
+  "panel_p3_liquidity": {
+    "name": "P3 - Liquidity Profile",
+    "dashboard": "p3_liquidity",
+    "size": {
+      "width": 1100,
+      "height": 800
+    },
+    "dashboard_spec": [
+      "Subplot 1: Bars: avg_daily_volume, max_daily_volume, min_daily_volume (liquidity.*)",
+      "Subplot 2: KPI badges: avg_daily_value_cr, volume_stability_index",
+      "Subplot 3: Timeline highlight days where volume > 2x avg (from ohlcv_data_30d)",
+      "Subplot 4: Small table: high_volume_days, low_volume_days"
+    ],
+    "text_takeaway": "One-line: 'AvgVol {liquidity.avg_daily_volume:,}, VSI {liquidity.volume_stability_index:.1f} — liquidity strong/moderate'.",
+    "provenance_keys": [
+      "liquidity.avg_daily_volume",
+      "liquidity.avg_daily_value_cr",
+      "liquidity.max_daily_volume",
+      "liquidity.min_daily_volume",
+      "liquidity.volume_stability_index",
+      "liquidity.high_volume_days",
+      "liquidity.low_volume_days",
+      "ohlcv_data_30d"
+    ],
+    "prompt": "Extract from gmr_stock_analysis.json and create 1100x800 px panel:\n\n1. Top subplot (40%): Volume comparison bars\n   - Avg daily volume: liquidity.avg_daily_volume\n   - Max daily volume: liquidity.max_daily_volume\n   - Min daily volume: liquidity.min_daily_volume\n   \n2. Middle left (25%): KPI badges\n   - Avg daily value: liquidity.avg_daily_value_cr Cr\n   - Volume stability index: liquidity.volume_stability_index\n   - Color code: >60 = green, 40-60 = yellow, <40 = red\n   \n3. Middle right (25%): Timeline\n   - Extract ohlcv_data_30d dates and volumes\n   - Highlight days where volume > 2x avg_daily_volume\n   \n4. Bottom (10%): Table\n   - High volume days: liquidity.high_volume_days\n   - Low volume days: liquidity.low_volume_days\n\nCRITICAL: Create ALL 4 subplots (volume bars + KPI badges + timeline + table) in a SINGLE 1100x800 image.\nUse matplotlib subplots with proper layout (2x2 grid or custom arrangement).\nSave as ONE file: p3_liquidity.png (exactly 1100x800).\nDo NOT create separate images for each subplot - combine all into single PNG."
+  },
+  "panel_p4_volatility": {
+    "name": "P4 - Volatility & Drawdown",
+    "dashboard": "p4_volatility",
+    "size": {
+      "width": 1100,
+      "height": 800
+    },
+    "dashboard_spec": [
+      "Subplot 1: Gauge/bar for volatility_30d_annualized_percent (risk_metrics.volatility_30d_annualized_percent)",
+      "Subplot 2: Max drawdown negative bar (risk_metrics.max_drawdown_percent)",
+      "Subplot 3: Gap risk panel (gap_risk.gap_up_days, gap_down_days, total_gap_days)"
+    ],
+    "text_takeaway": "One-line: 'Vol(30d) {risk_metrics.volatility_30d_annualized_percent:.2f}%, MaxDD {risk_metrics.max_drawdown_percent:.2f}%'.",
+    "provenance_keys": [
+      "risk_metrics.volatility_30d_annualized_percent",
+      "risk_metrics.max_drawdown_percent",
+      "risk_metrics.avg_intraday_range_percent",
+      "gap_risk.gap_up_days",
+      "gap_risk.gap_down_days",
+      "gap_risk.total_gap_days",
+      "ohlcv_data_30d"
+    ],
+    "prompt": "Extract from gmr_stock_analysis.json and create 1100x800 px panel:\n\n1. Top left (50%): Volatility gauge\n   - Extract risk_metrics.volatility_30d_annualized_percent\n   - Show as gauge: 0-15% green, 15-30% yellow, 30%+ red\n   \n2. Top right (50%): Max drawdown bar\n   - Extract risk_metrics.max_drawdown_percent\n   - Show as horizontal negative bar (red)\n   \n3. Bottom (full width): Gap risk panel\n   - Gap up days: gap_risk.gap_up_days\n   - Gap down days: gap_risk.gap_down_days\n   - Total gap days: gap_risk.total_gap_days\n   - Show as stacked bar or grouped bar chart\n\nCRITICAL: Create ALL 3 subplots (volatility gauge + drawdown bar + gap risk) in a SINGLE 1100x800 image.\nUse matplotlib subplots with proper layout (2 graphs on top, 1 at bottom).\nSave as ONE file: p4_volatility.png (exactly 1100x800).\nDo NOT create separate images for each subplot - combine all into single PNG."
+  },
+  "rules": {
+    "data_source_only": "Use only gmr_stock_analysis.json. No external API calls.",
+    "missing_data": "If any required key missing, render 'N/A' and list in metadata.missing_keys.",
+    "provenance": "Every numeric must include source extraction key in metadata JSON.",
+    "visual_specs": "All PNGs must match sizes exactly. Use matplotlib, fonts legible (minimum 10pt).",
+    "output_package": "Deliver: p1_price_trend.png, p2_relative_perf.png, p3_liquidity.png, p4_volatility.png, riskometer.png, final_graph.png, final_stock_report.png, final_stock_report_metadata.json"
+  }
+}
+

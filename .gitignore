@@ -62,6 +62,7 @@ Thumbs.db
 !frontend/package-lock.json
 !data/**/*.json
 !frontend/public/data/**/*.json
+!templates/prompts/**/*.json
 
 
 # ============================================================
