@@ -1,0 +1,25 @@
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+azure-storage-blob==12.23.1
+azure-identity==1.19.0
+python-dotenv==1.0.1
+python-multipart==0.0.12
+
+# AutoGen
+autogen==0.9.9
+autogen-agentchat==0.7.4
+autogen-core==0.7.4
+autogen-ext==0.7.4
+ag2[openai]==0.9.9
+
+# Azure AI (Managed Identity compatible)
+azure-ai-projects>=1.0.0b11,<2.0.0
+azure-ai-inference>=1.0.0b9
+azure-core>=1.30.0
+
+# Others
+pydantic>=2.0.0
+opentelemetry-api>=1.0.0
+typing-extensions>=4.0.0
+requests>=2.21.0
+

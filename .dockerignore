@@ -1,0 +1,15 @@
+**/.git
+**/.gitignore
+**/.vscode
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/.env
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.Python
+**/dist
+**/build
+**/.DS_Store
+**/*.log
