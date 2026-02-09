@@ -65,51 +65,37 @@ AI-powered investment analysis platform using Azure AI services for automated st
    - Backend API: `http://localhost:8000`
    - API Docs: `http://localhost:8000/docs`
 
-### Using Docker Compose (Alternative)
-
-```bash
-docker-compose up --build
-```
-- Frontend: `http://localhost:5173`
-- Backend: `http://localhost:8000`
 
 ## ☁️ Deployment
 
-### Option 1: Azure Container Apps (Recommended)
-
-Container Apps provides automatic scaling, pay-per-use pricing, and built-in HTTPS.
+### Azure Container Apps
 
 #### Prerequisites
 - Azure CLI installed (`az --version`)
-- Docker (for local builds) or use ACR build
+- Azure subscription with required services
 
-#### Quick Deploy (Manual)
+#### Deploy Backend and Frontend
 
 ```bash
 # 1. Login to Azure
 az login
 
-# 2. Install Container Apps extension
-az extension add --name containerapp --upgrade
-
-# 3. Create resource group
+# 2. Create resource group
 az group create --name bfsi-investment-rg --location eastus
 
-# 4. Create container registry
+# 3. Create container registry
 az acr create --resource-group bfsi-investment-rg \
   --name bfsiinvestmentacr --sku Basic --admin-enabled true
 
-# 5. Create Container Apps environment
+# 4. Create Container Apps environment
 az containerapp env create \
   --name bfsi-investment-env \
   --resource-group bfsi-investment-rg \
   --location eastus
 
-# 6. Build and push backend image via ACR
-az acr build --registry bfsiinvestmentacr \
-  --image bfsi-backend:latest ./backend
+# 5. Build and deploy backend
+az acr build --registry bfsiinvestmentacr --image bfsi-backend:latest ./backend
 
-# 7. Deploy the backend container app
 az containerapp create \
   --name bfsi-backend \
   --resource-group bfsi-investment-rg \
@@ -118,38 +104,28 @@ az containerapp create \
   --target-port 8000 \
   --ingress external \
   --registry-server bfsiinvestmentacr.azurecr.io \
-  --cpu 1.0 --memory 2.0Gi
-
-# 8. Set environment variables
-az containerapp update \
-  --name bfsi-backend \
-  --resource-group bfsi-investment-rg \
-  --set-env-vars \
+  --cpu 1.0 --memory 2.0Gi \
+  --env-vars \
     AZURE_OPENAI_ENDPOINT="https://your-openai.openai.azure.com/" \
     AZURE_OPENAI_API_KEY="your-api-key" \
     AZURE_SUBSCRIPTION_ID="your-sub-id" \
     AZURE_RESOURCE_GROUP="your-rg" \
     AZURE_PROJECT_NAME="your-project" \
-    AZURE_MODEL_DEPLOYMENT="gpt-4o-mini" \
-    PORT="8000" \
-    ENVIRONMENT="production"
+    AZURE_MODEL_DEPLOYMENT="gpt-4o-mini"
 
-# 9. Get the backend app URL
-az containerapp show --name bfsi-backend \
+# 6. Get backend URL
+BACKEND_URL=$(az containerapp show --name bfsi-backend \
   --resource-group bfsi-investment-rg \
-  --query properties.configuration.ingress.fqdn -o tsv
-```
+  --query properties.configuration.ingress.fqdn -o tsv)
 
-#### Frontend Container App
+echo "Backend URL: https://$BACKEND_URL"
 
-```bash
-# Build frontend image with backend URL
-cd frontend
+# 7. Build and deploy frontend
 az acr build --registry bfsiinvestmentacr \
   --image bfsi-frontend:latest \
-  --build-arg VITE_API_BASE_URL=https://<your-backend-url> .
+  --build-arg VITE_API_BASE_URL=https://$BACKEND_URL \
+  ./frontend
 
-# Deploy frontend
 az containerapp create \
   --name bfsi-frontend \
   --resource-group bfsi-investment-rg \
@@ -159,47 +135,32 @@ az containerapp create \
   --ingress external \
   --registry-server bfsiinvestmentacr.azurecr.io \
   --cpu 0.5 --memory 1.0Gi
+
+# 8. Get frontend URL
+FRONTEND_URL=$(az containerapp show --name bfsi-frontend \
+  --resource-group bfsi-investment-rg \
+  --query properties.configuration.ingress.fqdn -o tsv)
+
+echo "Frontend URL: https://$FRONTEND_URL"
+echo "Deployment complete!"
 ```
 
-#### Useful Container Apps Commands
+#### Useful Commands
 
 ```bash
 # View logs
 az containerapp logs show --name bfsi-backend --resource-group bfsi-investment-rg --follow
 
-# Check status
-az containerapp show --name bfsi-backend --resource-group bfsi-investment-rg
+# Update backend after code changes
+az acr build --registry bfsiinvestmentacr --image bfsi-backend:latest ./backend
+az containerapp update --name bfsi-backend --resource-group bfsi-investment-rg \
+  --image bfsiinvestmentacr.azurecr.io/bfsi-backend:latest
 
-# Restart
-az containerapp revision restart --name bfsi-backend --resource-group bfsi-investment-rg
-
-# Cleanup all resources
+# Delete all resources
 az group delete --name bfsi-investment-rg --yes
 ```
 
-### Option 2: Manual Deployment via Docker
-
-```powershell
-# Login to Azure Container Registry
-docker login <your-registry>.azurecr.io -u <username> -p <password>
-
-# Build and push backend
-docker build -t <your-registry>.azurecr.io/bfsi-backend:latest ./backend
-docker push <your-registry>.azurecr.io/bfsi-backend:latest
-
-# Build and push frontend (with backend URL)
-docker build -t <your-registry>.azurecr.io/bfsi-frontend:latest \
-  --build-arg VITE_API_BASE_URL=<backend-url> ./frontend
-docker push <your-registry>.azurecr.io/bfsi-frontend:latest
-```
-
-Then deploy via Azure Portal:
-1. Azure Portal → Container Apps → Create
-2. Configure: Image, Environment, Ingress
-3. Add environment variables
-4. Deploy
-
-
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed step-by-step instructions.
 
 ## 🔧 Configuration
 
