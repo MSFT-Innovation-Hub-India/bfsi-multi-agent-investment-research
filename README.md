@@ -18,37 +18,13 @@ AI-powered investment analysis platform using Azure AI services for automated st
 
 ## 🛠️ Tech Stack
 
-<table>
-<tr>
-<td valign="top" width="50%">
+**Backend:** Python 3.9+, FastAPI, Uvicorn, Azure AI Projects SDK
 
-**Backend:**
-- Python 3.9+
-- FastAPI
-- Uvicorn
-- Azure AI Projects SDK
+**Frontend:** React 18, TypeScript, Vite, TailwindCSS
 
-**Frontend:**
-- React 18
-- TypeScript
-- Vite
-- TailwindCSS
+**AI:** Azure OpenAI, Azure AI Services
 
-</td>
-<td valign="top" width="50%">
-
-**AI:**
-- Azure OpenAI
-- Azure AI Services
-
-**Infrastructure:**
-- Docker
-- Azure Container Apps
-- Azure Container Registry
-
-</td>
-</tr>
-</table>
+**Infrastructure:** Docker, Azure Container Apps, Azure Container Registry
 
 ## 📦 Quick Start
 
