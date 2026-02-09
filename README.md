@@ -8,7 +8,15 @@ AI-powered investment analysis platform using Azure AI services for automated st
 - **Azure Integration** — Leverages Azure AI, OpenAI, and Azure AI Services
 - **Container-Ready** — Docker support with Azure Container Apps deployment
 
-## ️ Tech Stack
+## 🤖 AI Agents
+
+| Agent | Description | Output |
+|-------|-------------|--------|
+| **Stock Analyst Agent** | Performs detailed financial analysis including metrics, market position, growth potential, and risk evaluation | Financial analysis report with comprehensive stock assessment |
+| **Compliance Agent** | Reviews regulatory compliance, risk assessment, legal considerations, and industry-specific regulations | Compliance findings and risk analysis report |
+| **Investment Report Agent** | Synthesizes all agent outputs into comprehensive investment recommendations with actionable insights | Final investment report with recommendations |
+
+## 🛠️ Tech Stack
 
 | Layer | Technologies |
 |-------|-------------|
@@ -159,8 +167,6 @@ az containerapp update --name bfsi-backend --resource-group bfsi-investment-rg \
 # Delete all resources
 az group delete --name bfsi-investment-rg --yes
 ```
-
-See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed step-by-step instructions.
 
 ## 🔧 Configuration
 
