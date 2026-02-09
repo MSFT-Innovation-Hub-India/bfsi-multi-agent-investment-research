@@ -199,7 +199,7 @@ Then deploy via Azure Portal:
 3. Add environment variables
 4. Deploy
 
-See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed step-by-step instructions.
+
 
 ## 🔧 Configuration
 
