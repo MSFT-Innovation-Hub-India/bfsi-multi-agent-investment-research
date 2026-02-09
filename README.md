@@ -18,6 +18,10 @@ AI-powered investment analysis platform using Azure AI services for automated st
 
 ## 🛠️ Tech Stack
 
+<table>
+<tr>
+<td valign="top" width="50%">
+
 **Backend:**
 - Python 3.9+
 - FastAPI
@@ -30,6 +34,9 @@ AI-powered investment analysis platform using Azure AI services for automated st
 - Vite
 - TailwindCSS
 
+</td>
+<td valign="top" width="50%">
+
 **AI:**
 - Azure OpenAI
 - Azure AI Services
@@ -38,6 +45,10 @@ AI-powered investment analysis platform using Azure AI services for automated st
 - Docker
 - Azure Container Apps
 - Azure Container Registry
+
+</td>
+</tr>
+</table>
 
 ## 📦 Quick Start
 
