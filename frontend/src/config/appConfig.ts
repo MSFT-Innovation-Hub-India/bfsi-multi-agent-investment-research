@@ -7,7 +7,7 @@
  */
 
 // Backend API endpoint for SSE events (orchestrator API)
-export const API_BASE_URL = import.meta.env.VITE_API_URL;
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://investmentresearchbackend.agreeablewave-76bf5979.eastus.azurecontainerapps.io';
 
 /**
  * Resolve the URL for a JSON file under the public/data folder.

@@ -173,6 +173,7 @@ function WorkflowPage() {
     'Company Analyst': 'pending',
     'Compliance Evaluator': 'pending'
   })
+  const [showLogs, setShowLogs] = useState(false)
 
   useEffect(() => {
     // Load extracted workflow metrics from configured source (Azure Blob API or local)
@@ -354,6 +355,19 @@ function WorkflowPage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold" style={{ color: '#00246B' }}>GMR Airports Investment Analysis</h2>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowLogs(!showLogs)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all border-2"
+                style={{ 
+                  backgroundColor: showLogs ? '#00246B' : 'white',
+                  color: showLogs ? '#CADCFC' : '#00246B',
+                  borderColor: '#00246B'
+                }}
+              >
+                <Activity className="h-4 w-4" />
+                {showLogs ? 'Hide Logs' : 'View Logs'}
+                {!showLogs && progressLogs.length > 0 && <span className="ml-1 px-2 py-0.5 rounded-full text-xs" style={{ backgroundColor: '#00246B', color: '#CADCFC' }}>{progressLogs.length}</span>}
+              </button>
               {!isRunning && completedStages.size === 0 && (
                 <button
                   onClick={startWorkflow}
@@ -522,13 +536,18 @@ function WorkflowPage() {
         </div>
 
         {/* Real-time Progress Log */}
-        {progressLogs.length > 0 && (
+        {showLogs && (
           <div className="mt-8 rounded-2xl p-6 shadow-lg border" style={{ backgroundColor: 'white', borderColor: '#00246B' }}>
             <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#00246B' }}>
               <Activity className="h-5 w-5" />
               Live Progress Feed
             </h3>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            {progressLogs.length === 0 ? (
+              <div className="text-center py-8" style={{ color: '#00246B', opacity: 0.6 }}>
+                <p>No logs yet. Start an analysis to see real-time progress.</p>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-96 overflow-y-auto">
               {progressLogs.map((log, idx) => (
                 <div 
                   key={idx} 
@@ -556,6 +575,7 @@ function WorkflowPage() {
                 </div>
               ))}
             </div>
+            )}
           </div>
         )}
 

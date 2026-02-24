@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 # Add current directory to path for imports
 sys.path.append(str(Path(__file__).parent))
 from orchestrator import GMRInvestmentOrchestrator
+from cosmos_service import CosmosDBService
 
 # Get root_path from environment variable, default to "" for local development
 root_path = os.getenv("ROOT_PATH", "")
@@ -73,6 +74,14 @@ app.add_middleware(
     allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["*"]
 )
+
+# Initialize Cosmos DB Service
+logger.info("🔧 Initializing Cosmos DB Service...")
+cosmos_db = CosmosDBService()
+if cosmos_db.is_enabled():
+    logger.info("✅ Cosmos DB service initialized successfully")
+else:
+    logger.warning("⚠️ Cosmos DB not enabled - using local data fallback")
 
 # Global state
 analysis_sessions = {}
@@ -126,15 +135,32 @@ async def run_analysis_with_progress(analysis_id: str, use_cached_data: bool = T
         
         # Check if stock data exists
         stock_file = orchestrator.data_dir / "stock_report.json"
+        stock_output = ""
         if stock_file.exists():
             with open(stock_file, 'r', encoding='utf-8') as f:
                 stock_data = json.load(f)
+                # Extract text content for Cosmos DB
+                if isinstance(stock_data, dict) and 'sections' in stock_data:
+                    stock_output = "\n\n".join([s.get('summary', s.get('analysis', '')) for s in stock_data.get('sections', [])])
             await progress.emit("agent_completed", "Stock_Analyst", "✅ Stock data loaded successfully", {
                 "return_30d": "7.61%",
                 "volatility": "13.98%",
                 "volume": "11.96M shares",
                 "status": "traded"
             })
+            
+            # Update Cosmos DB with stock analyst output
+            if cosmos_db.is_enabled() and analysis_sessions[analysis_id].get("cosmos_id"):
+                try:
+                    cosmos_db.update_agent_status(
+                        analysis_sessions[analysis_id]["cosmos_id"],
+                        "stock_analyst",
+                        "completed",
+                        stock_output[:5000]  # Limit output size
+                    )
+                    logger.info(f"📊 Updated Stock Analyst status in Cosmos DB")
+                except Exception as e:
+                    logger.error(f"⚠️ Failed to update Stock Analyst in Cosmos DB: {e}")
         else:
             await progress.emit("agent_error", "Stock_Analyst", "⚠️ Stock data not found - run stock analyst first")
         
@@ -146,15 +172,32 @@ async def run_analysis_with_progress(analysis_id: str, use_cached_data: bool = T
         await asyncio.sleep(1)
         
         company_file = orchestrator.data_dir / "company_analysis_output.json"
+        company_output = ""
         if company_file.exists():
             with open(company_file, 'r', encoding='utf-8') as f:
                 company_data = json.load(f)
+                # Extract text content for Cosmos DB
+                if isinstance(company_data, dict) and 'sections' in company_data:
+                    company_output = "\n\n".join([s.get('summary', s.get('analysis', '')) for s in company_data.get('sections', [])])
             await progress.emit("agent_completed", "Investment_Analyst", "✅ Financial data loaded successfully", {
                 "revenue_fy25": "₹14.10 Bn",
                 "ebitda": "₹1.00 Bn",
                 "debt": "₹18.21 Bn",
                 "interest_coverage": "0.71x"
             })
+            
+            # Update Cosmos DB with company analyst output
+            if cosmos_db.is_enabled() and analysis_sessions[analysis_id].get("cosmos_id"):
+                try:
+                    cosmos_db.update_agent_status(
+                        analysis_sessions[analysis_id]["cosmos_id"],
+                        "company_analyst",
+                        "completed",
+                        company_output[:5000]  # Limit output size
+                    )
+                    logger.info(f"💰 Updated Company Analyst status in Cosmos DB")
+                except Exception as e:
+                    logger.error(f"⚠️ Failed to update Company Analyst in Cosmos DB: {e}")
         else:
             await progress.emit("agent_error", "Investment_Analyst", "⚠️ Company data not found")
         
@@ -166,14 +209,36 @@ async def run_analysis_with_progress(analysis_id: str, use_cached_data: bool = T
         await asyncio.sleep(1)
         
         compliance_file = orchestrator.data_dir / "compliance_recommendation.json"
+        compliance_output = ""
         if compliance_file.exists():
             with open(compliance_file, 'r', encoding='utf-8') as f:
                 compliance_data = json.load(f)
+                # Extract text content for Cosmos DB
+                if isinstance(compliance_data, dict):
+                    # Combine all sections into output text
+                    sections = []
+                    for key, value in compliance_data.items():
+                        if isinstance(value, str) and not key.startswith('_'):
+                            sections.append(f"{key}: {value}")
+                    compliance_output = "\n\n".join(sections)
             await progress.emit("agent_completed", "Compliance_Evaluator", "✅ Compliance data loaded", {
                 "decision": "REVIEW REQUIRED",
                 "exceptional_events": 2,
                 "trading_status": "APPROVED"
             })
+            
+            # Update Cosmos DB with compliance evaluator output
+            if cosmos_db.is_enabled() and analysis_sessions[analysis_id].get("cosmos_id"):
+                try:
+                    cosmos_db.update_agent_status(
+                        analysis_sessions[analysis_id]["cosmos_id"],
+                        "compliance_evaluator",
+                        "completed",
+                        compliance_output[:5000]  # Limit output size
+                    )
+                    logger.info(f"⚖️ Updated Compliance Evaluator status in Cosmos DB")
+                except Exception as e:
+                    logger.error(f"⚠️ Failed to update Compliance Evaluator in Cosmos DB: {e}")
         else:
             await progress.emit("agent_error", "Compliance_Evaluator", "⚠️ Compliance data not found")
         
@@ -254,11 +319,33 @@ async def run_analysis_with_progress(analysis_id: str, use_cached_data: bool = T
         analysis_sessions[analysis_id]["status"] = "completed"
         analysis_sessions[analysis_id]["completed_at"] = datetime.now().isoformat()
         
+        # Update Cosmos DB analysis status to completed
+        if cosmos_db.is_enabled() and analysis_sessions[analysis_id].get("cosmos_id"):
+            try:
+                cosmos_db.update_analysis_status(
+                    analysis_sessions[analysis_id]["cosmos_id"],
+                    "completed"
+                )
+                logger.info(f"✅ Marked analysis as completed in Cosmos DB")
+            except Exception as e:
+                logger.error(f"⚠️ Failed to update analysis status in Cosmos DB: {e}")
+        
     except Exception as e:
         logger.error(f"Analysis error: {str(e)}")
         await progress.emit("error", "System", f"❌ Error: {str(e)}")
         analysis_sessions[analysis_id]["status"] = "failed"
         analysis_sessions[analysis_id]["error"] = str(e)
+        
+        # Update Cosmos DB analysis status to failed
+        if cosmos_db.is_enabled() and analysis_sessions[analysis_id].get("cosmos_id"):
+            try:
+                cosmos_db.update_analysis_status(
+                    analysis_sessions[analysis_id]["cosmos_id"],
+                    "failed"
+                )
+                logger.info(f"❌ Marked analysis as failed in Cosmos DB")
+            except Exception as e:
+                logger.error(f"⚠️ Failed to update failed status in Cosmos DB: {e}")
     
     finally:
         # Signal stream end
@@ -342,15 +429,32 @@ async def trigger_analysis(background_tasks: BackgroundTasks, use_cached: bool =
         "use_cached_data": use_cached
     }
     
+    # Create analysis record in Cosmos DB
+    if cosmos_db.is_enabled():
+        try:
+            cosmos_analysis = cosmos_db.create_analysis(
+                company_name="GMR Airports Ltd",
+                ticker="GMRAIRPORT.NS",
+                analyst_name="System"
+            )
+            # Use Cosmos DB ID for tracking
+            cosmos_analysis_id = cosmos_analysis["id"]
+            analysis_sessions[analysis_id]["cosmos_id"] = cosmos_analysis_id
+            logger.info(f"📝 Created Cosmos DB analysis: {cosmos_analysis_id}")
+        except Exception as e:
+            logger.error(f"⚠️ Failed to create Cosmos DB analysis: {e}")
+    
     # Start analysis in background
     background_tasks.add_task(run_analysis_with_progress, analysis_id, use_cached)
     
-    return {
-        "analysis_id": analysis_id,
-        "status": "started",
-        "stream_url": f"/api/stream/{analysis_id}",
-        "message": "Analysis started. Connect to stream_url for real-time updates."
+    # Return IDs and stream URL
+    response = {
+        "workflow_id": analysis_id,  # Short UUID for session tracking
+        "analysis_id": analysis_sessions[analysis_id].get("cosmos_id", analysis_id),  # Cosmos DB ID if available
+        "stream_url": f"/api/stream/{analysis_id}"  # EventSource stream endpoint
     }
+    
+    return response
 
 
 @app.get("/api/stream/{analysis_id}",
@@ -454,6 +558,119 @@ async def delete_session(analysis_id: str):
             "timestamp": datetime.now().isoformat()
         }
     raise HTTPException(status_code=404, detail=f"Session not found: {analysis_id}")
+
+
+# ============= COSMOS DB ENDPOINTS =============
+
+@app.get("/api/analyses",
+         tags=["Analysis"])
+async def list_analyses():
+    """
+    List all investment analyses from Cosmos DB.
+    
+    Returns:
+    - List of analysis documents with agent outputs
+    """
+    try:
+        logger.info("📋 Fetching all analyses from Cosmos DB")
+        analyses = cosmos_db.list_analyses()
+        logger.info(f"✅ Retrieved {len(analyses)} analyses")
+        
+        return {
+            "analyses": analyses,
+            "total": len(analyses),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"❌ Failed to list analyses: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/analyses/{analysis_id}",
+         tags=["Analysis"])
+async def get_analysis(analysis_id: str):
+    """
+    Get specific investment analysis by ID.
+    
+    Parameters:
+    - analysis_id: Analysis ID
+    
+    Returns:
+    - Analysis document with all agent outputs
+    """
+    try:
+        logger.info(f"🔍 Fetching analysis: {analysis_id}")
+        analysis = cosmos_db.get_analysis(analysis_id)
+        
+        if not analysis:
+            raise HTTPException(status_code=404, detail=f"Analysis not found: {analysis_id}")
+        
+        logger.info(f"✅ Retrieved analysis: {analysis_id}")
+        return analysis
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Failed to get analysis: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/analyses/create",
+          tags=["Analysis"])
+async def create_analysis(
+    company_name: str,
+    ticker: str = None,
+    analyst_name: str = None
+):
+    """
+    Create new investment analysis session in Cosmos DB.
+    
+    Parameters:
+    - company_name: Company name
+    - ticker: Stock ticker symbol
+    - analyst_name: Name of analyst
+    
+    Returns:
+    - Created analysis document
+    """
+    try:
+        logger.info(f"📝 Creating new analysis for {company_name}")
+        
+        analysis = cosmos_db.create_analysis(
+            company_name=company_name,
+            ticker=ticker,
+            analyst_name=analyst_name
+        )
+        
+        logger.info(f"✅ Analysis created: {analysis.get('id')}")
+        
+        return {
+            "success": True,
+            "analysis": analysis,
+            "message": "Analysis created successfully"
+        }
+    except Exception as e:
+        logger.error(f"❌ Failed to create analysis: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/health",
+         tags=["health"])
+async def health_check():
+    """
+    Health check endpoint for Container Apps.
+    
+    Returns:
+    - Health status with Cosmos DB connection info
+    """
+    cosmos_status = "connected" if cosmos_db.is_enabled() else "not configured"
+    
+    return {
+        "status": "healthy",
+        "service": "GMR Investment Analysis API",
+        "cosmos_db": cosmos_status,
+        "timestamp": datetime.now().isoformat(),
+        "version": "1.0.0"
+    }
 
 
 if __name__ == "__main__":

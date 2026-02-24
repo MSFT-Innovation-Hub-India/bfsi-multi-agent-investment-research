@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Activity, Zap, FileText } from 'lucide-react'
+import { Activity, Zap, FileText, History } from 'lucide-react'
 
 function Header() {
   const location = useLocation()
@@ -41,6 +41,17 @@ function Header() {
             >
               <FileText className="w-4 h-4" />
               Agent Reports
+            </Link>
+            <Link
+              to="/history"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl transition-all font-semibold shadow-lg"
+              style={isActive('/history') 
+                ? { backgroundColor: '#CADCFC', color: '#00246B' }
+                : { backgroundColor: 'transparent', color: '#CADCFC', border: '2px solid #CADCFC' }
+              }
+            >
+              <History className="w-4 h-4" />
+              Workflow History
             </Link>
           </nav>
         </div>
